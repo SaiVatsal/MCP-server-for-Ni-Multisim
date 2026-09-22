@@ -26,6 +26,8 @@ Comprehensive guide for integrating and automating **National Instruments Multis
 - Direct measurement extraction (voltages, branch currents, multimeter probes, Bode plots).
 - Batch parametric sweeps and automated technical reporting.
 
+![NI Multisim Active Filter Schematic](assets/rc_active_low_pass_filter_schematic.png)
+
 ---
 
 ## ⚙ Prerequisites & System Architecture

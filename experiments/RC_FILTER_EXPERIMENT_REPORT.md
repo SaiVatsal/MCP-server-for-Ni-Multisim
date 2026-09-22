@@ -18,6 +18,8 @@ This experiment analyzes a foundational **First-Order Passive RC Low-Pass Filter
 
 ## 2. Circuit Schematic
 
+![Active Low-Pass Filter Multisim Schematic](../assets/rc_active_low_pass_filter_schematic.png)
+
 ```
           R1 (1 kOhm)
    (1) -----/\/\/\/\-------+------ (2) Output (V_out)
