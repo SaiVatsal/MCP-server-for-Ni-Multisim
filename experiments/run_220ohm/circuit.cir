@@ -1,6 +1,0 @@
-* LED Blinking Experiment - R = 220 Ohm
-V1 1 0 PULSE(0 5 0 1m 1m 0.5 1.0)
-R1 1 2 220
-D1 2 0 DLED
-.model DLED D(Is=1e-22 Rs=5 N=1.8 Cjo=20p)
-.end

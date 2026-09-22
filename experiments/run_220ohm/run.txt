@@ -1,3 +1,0 @@
-source C:\msre_exp\msre_0c8f8f5d6f81444d\circuit.cir
-tran 10m 2.0
-write C:\msre_exp\msre_0c8f8f5d6f81444d\result.raw
