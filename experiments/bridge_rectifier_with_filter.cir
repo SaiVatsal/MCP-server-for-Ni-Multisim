@@ -1,0 +1,34 @@
+* Full-Wave Bridge Rectifier (With 2200uF Filter Capacitor)
+* Author: Antigravity Systems Automation
+* Date: 2026-09-22
+* Primary Supply: 230V RMS @ 50 Hz (325.27V Peak)
+* 10:1 Transformer: Steps down to 23V RMS @ 50 Hz (32.53V Peak)
+* Rectifier Bridge: 1B4B42 (1.5A Silicon Bridge Rectifier)
+* Load: 33 Ohm Power Resistor
+* Filter: 2200 uF Electrolytic Filter Capacitor
+
+* Primary Circuit
+V_PRI 1 0 SIN(0 325.27 50)
+R_PRI 1 11 0.1
+L_PRI 11 0 10.0
+
+* Secondary Circuit & Coupling (10:1 Ratio: sqrt(10/0.1) = 10)
+L_SEC 2 3 0.1
+K_XFMR L_PRI L_SEC 0.999
+R_SEC_REF 3 0 10MEG
+
+* 1B4B42 Bridge Rectifier Diodes
+D1 2 4 D1B4B42
+D2 3 4 D1B4B42
+D3 0 2 D1B4B42
+D4 0 3 D1B4B42
+
+* 33 Ohm Load Resistor & 2200 uF Filter Capacitor
+R_LOAD 4 0 33
+C_FILTER 4 0 2200u
+
+* Diode Model for 1B4B42 (1.5A, 600V Silicon Rectifier)
+.model D1B4B42 D(Is=1e-9 Rs=0.08 N=1.5 Cjo=50p)
+
+.tran 100u 100m
+.end

@@ -1,0 +1,3 @@
+source C:\msre_exp\msre_f4cad350e6a0463f\circuit.cir
+tran 10m 2.0
+write C:\msre_exp\msre_f4cad350e6a0463f\result.raw
