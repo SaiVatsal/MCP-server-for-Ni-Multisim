@@ -1,0 +1,22 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.env
+.venv/
+venv/
+
+# Multisim & SPICE temporary files
+*.tmp
+*.raw
+*.log
+*.csv
+*.cir.bak
+*.ms14.bak
+msre_exp/
+
+# IDE & OS files
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
