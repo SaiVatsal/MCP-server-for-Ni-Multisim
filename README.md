@@ -14,7 +14,8 @@ Comprehensive guide for integrating and automating **National Instruments Multis
 7. [Prompting & Usage Guide](#-prompting--usage-guide)
 8. [Verified Test Project: 1 Hz Blinking LED](#-verified-test-project-1-hz-blinking-led)
 9. [Available MCP Tools Overview](#-available-mcp-tools-overview)
-10. [Pushing to GitHub](#-pushing-to-github)
+10. [Analog Laboratory Experiments & Schematics](#-analog-laboratory-experiments--schematics)
+11. [Pushing to GitHub](#-pushing-to-github)
 
 ---
 
@@ -199,6 +200,22 @@ The `multisim-mcp` integration registers **55 tools** categorized into:
    - `run_circuit_experiment`, `run_verified_circuit_experiment`
    - `plan_experiment_sweep`, `run_experiment_sweep`
    - `generate_report`, `export_formal_experiment_report`
+
+---
+
+## 🔬 Analog Laboratory Experiments & Schematics
+
+A comprehensive, illustrated laboratory portfolio is documented in [**`ANALOG_LAB_EXPERIMENTS_MANUAL.md`**](ANALOG_LAB_EXPERIMENTS_MANUAL.md), featuring verified native Multisim (`.ms14`) schematics and full technical lab reports (`.md`):
+
+| Experiment | Native Multisim File | Illustrated Lab Report | Key Verification |
+| :--- | :--- | :--- | :--- |
+| **Active Low-Pass Filter** | [`experiments/RC_Low_Pass_Filter.ms14`](experiments/RC_Low_Pass_Filter.ms14) | [`RC_FILTER_EXPERIMENT_REPORT.md`](experiments/RC_FILTER_EXPERIMENT_REPORT.md) | $f_c \approx 1.59\,\text{kHz}$, $0\,\text{dB}$ passband |
+| **Variable Regulated DC Power Supply** | [`experiments/variable_power_supply_bridge_rectifier.ms14`](experiments/variable_power_supply_bridge_rectifier.ms14) | [`BRIDGE_RECTIFIER_EXPERIMENT_REPORT.md`](experiments/BRIDGE_RECTIFIER_EXPERIMENT_REPORT.md) | Full bridge rectifier, $2.2\,\text{mF}$, LM317 regulator |
+| **RC Phase Shift Audio Oscillator** | [`experiments/rc_phase_shift_oscillator.ms14`](experiments/rc_phase_shift_oscillator.ms14) | [`RC_PHASE_SHIFT_OSCILLATOR_EXPERIMENT_REPORT.md`](experiments/RC_PHASE_SHIFT_OSCILLATOR_EXPERIMENT_REPORT.md) | Barkhausen criterion, $f_0 \approx 4.33\,\text{kHz}$ |
+| **Inverting Operational Amplifier** | [`experiments/opamp_inverting_amplifier.ms14`](experiments/opamp_inverting_amplifier.ms14) | [`OPAMP_INVERTING_AMPLIFIER_EXPERIMENT_REPORT.md`](experiments/OPAMP_INVERTING_AMPLIFIER_EXPERIMENT_REPORT.md) | $A_v = -10$, $180^\circ$ phase inversion |
+| **BJT Common Emitter Amplifier** | [`experiments/bjt_ce_amplifier.ms14`](experiments/bjt_ce_amplifier.ms14) | [`BJT_CE_AMPLIFIER_EXPERIMENT_REPORT.md`](experiments/BJT_CE_AMPLIFIER_EXPERIMENT_REPORT.md) | 2N2222, $A_v \approx -18.2$, DC bias validation |
+
+*(Note: In compliance with project guidelines, only native `.ms14` schematics and markdown `.md` manuals are retained).*
 
 ---
 
