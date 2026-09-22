@@ -127,12 +127,9 @@ Both circuits were simulated for $100\text{ ms}$ ($5$ line cycles = $10$ full-wa
 
 ---
 
-## 7. Artifacts and Raw Simulation Files
+## 7. Artifacts and Schematic Files
 
-All simulation netlists, raw SPICE logs, and waveform datasets are preserved in this directory:
+All schematic files and reports are preserved in this directory:
 
-* **Netlist (No Filter)**: [bridge_rectifier_no_filter.cir](file:///C:/Users/Vatsal%27s/Documents/analog%20all%20experiments/bridge_rectifier_no_filter.cir)
-* **Netlist (With Filter)**: [bridge_rectifier_with_filter.cir](file:///C:/Users/Vatsal%27s/Documents/analog%20all%20experiments/bridge_rectifier_with_filter.cir)
-* **Raw Waveform Data (No Filter)**: [data.csv](file:///C:/Users/Vatsal%27s/Documents/analog%20all%20experiments/bridge_rectifier_no_filter/data.csv)
-* **Raw Waveform Data (With Filter)**: [data.csv](file:///C:/Users/Vatsal%27s/Documents/analog%20all%20experiments/bridge_rectifier_with_filter/data.csv)
-* **Simulation Log (With Filter)**: [run.log](file:///C:/Users/Vatsal%27s/Documents/analog%20all%20experiments/bridge_rectifier_with_filter/run.log)
+* **Multisim Schematic (With Filter)**: [bridge_rectifier_with_filter.ms14](file:///C:/Users/Vatsal's/Documents/analog%20all%20experiments/bridge_rectifier_with_filter.ms14)
+* **Multisim Native Design**: [bridge_rectifier.ms14](file:///C:/Users/Vatsal's/Documents/analog%20all%20experiments/bridge_rectifier.ms14)

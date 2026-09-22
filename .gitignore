@@ -7,6 +7,7 @@ __pycache__/
 venv/
 
 # Multisim & SPICE temporary files
+*.cir
 *.tmp
 *.raw
 *.log

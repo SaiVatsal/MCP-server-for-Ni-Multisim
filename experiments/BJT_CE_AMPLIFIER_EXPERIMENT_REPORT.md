@@ -82,5 +82,4 @@
 ---
 
 ## 4. Associated Lab Artifacts
-* **Multisim Schematic**: [bjt_ce_amplifier.ms14](file:///C:/Users/Vatsal%27s/Documents/analog%20all%20experiments/bjt_ce_amplifier.ms14)
-* **SPICE Netlist**: [bjt_ce_amplifier.cir](file:///C:/Users/Vatsal%27s/Documents/analog%20all%20experiments/bjt_ce_amplifier.cir)
+* **Multisim Native Schematic**: [bjt_ce_amplifier.ms14](file:///C:/Users/Vatsal%27s/Documents/analog%20all%20experiments/bjt_ce_amplifier.ms14)

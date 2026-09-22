@@ -95,4 +95,3 @@ $$V_{out}(t) = V_{in} \left(1 - e^{-t / \tau}\right) = 5.0 \left(1 - e^{-t / 100
 
 ## 6. Associated Files
 * **Multisim Native Schematic**: [RC_Low_Pass_Filter.ms14](file:///C:/Users/Vatsal's/Documents/analog%20all%20experiments/RC_Low_Pass_Filter.ms14)
-* **SPICE Netlist**: [RC_Low_Pass_Filter.cir](file:///C:/Users/Vatsal's/Documents/analog%20all%20experiments/RC_Low_Pass_Filter.cir)
