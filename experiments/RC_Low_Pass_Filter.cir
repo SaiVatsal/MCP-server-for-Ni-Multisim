@@ -1,0 +1,19 @@
+* RC Low-Pass Filter Experiment (Frequency & Transient Analysis)
+* Author: Antigravity AI Systems Automation
+* Date: 2026-09-22
+* Specifications:
+* R1 = 1 kOhm, C1 = 100 nF
+* Theoretical Cutoff Frequency fc = 1 / (2 * pi * R * C) = 1591.55 Hz (~1.59 kHz)
+* Time Constant tau = R * C = 100 us (0.1 ms)
+
+V_IN 1 0 AC 1.0 PULSE(0 5 0 10n 10n 1m 2m)
+R1 1 2 1k
+C1 2 0 100n
+
+* AC Analysis: 10 Hz to 100 kHz (20 points per decade)
+.ac dec 20 10 100k
+
+* Transient Step Response: 0 to 1 ms with 5 us time step
+.tran 5u 1m
+
+.end
