@@ -1,0 +1,39 @@
+* Common Emitter BJT Voltage-Divider Amplifier Experiment
+* Author: Antigravity AI Systems Automation
+* Date: 2026-09-22
+* Target Q-Point: Ic = 1.97 mA, Vce = 5.34 V
+* Voltage Gain: Av = -151.85 (43.63 dB)
+
+* DC Power Supply
+VCC 6 0 DC 12.0
+
+* Small-Signal AC Source (10mV peak, 1 kHz)
+VIN 1 0 AC 1.0 SIN(0 10m 1k)
+
+* DC Voltage Divider Biasing Network
+R1 6 2 47k
+R2 2 0 10k
+RC 6 3 2.7k
+RE 4 0 680
+
+* Active Transistor (2N2222 NPN)
+Q1 3 2 4 Q2N2222
+.model Q2N2222 NPN(Is=14.34f Xti=3 Eg=1.11 Vaf=74.03 Bf=255.9 Ne=1.307
++ Ise=14.34f Ikf=.2847 Xtb=1.5 Br=6.092 Nc=2 Isc=0 Ikr=0 Rc=1
++ Cjc=7.306p Mjc=.3416 Vjc=.75 Fc=.5 Cje=22.01p Mje=.377 Vje=.75
++ Tr=46.91n Tf=411.1p Itf=.6 Vtf=1.7 Xtf=3 Rb=10)
+
+* AC Coupling & Emitter Bypass Capacitors
+CIN 1 2 10u
+COUT 3 5 10u
+CE 4 0 100u
+
+* Output Load Resistor
+RL 5 0 10k
+
+* Analyses
+.op
+.tran 2u 4m
+.ac dec 20 1 10Meg
+
+.end
