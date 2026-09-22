@@ -205,7 +205,53 @@ The `multisim-mcp` integration registers **55 tools** categorized into:
 
 ## 🔬 Analog Laboratory Experiments & Schematics
 
-A comprehensive, illustrated laboratory portfolio is documented in [**`ANALOG_LAB_EXPERIMENTS_MANUAL.md`**](ANALOG_LAB_EXPERIMENTS_MANUAL.md), featuring verified native Multisim (`.ms14`) schematics and full technical lab reports (`.md`):
+A comprehensive, illustrated laboratory portfolio is documented in [**`ANALOG_LAB_EXPERIMENTS_MANUAL.md`**](ANALOG_LAB_EXPERIMENTS_MANUAL.md). All 4 circuits have been designed, simulated, and verified in **NI Multisim 14.1** using `multisim-mcp`.
+
+Every experiment strictly adheres to repository standards, providing both the native **`.ms14`** Multisim schematic file and its complete markdown **`.md`** experiment report.
+
+---
+
+### 1. Active First-Order Low-Pass Filter
+* **Native Multisim Schematic**: [`experiments/RC_Low_Pass_Filter.ms14`](experiments/RC_Low_Pass_Filter.ms14)
+* **Experiment Report**: [`experiments/RC_FILTER_EXPERIMENT_REPORT.md`](experiments/RC_FILTER_EXPERIMENT_REPORT.md)
+* **Key Parameters**: $R_1 = 1\,\text{k}\Omega$, $R_2 = 1\,\text{k}\Omega$, $C_1 = 100\,\text{nF}$, Op-Amp: `OPAMP_5T_VIRTUAL`, $\pm 12\,\text{V}$ DC rails
+* **Theoretical Cutoff**: $f_c = \frac{1}{2\pi R_2 C_1} \approx \mathbf{1591.55\,\text{Hz} \text{ (~1.59 kHz)}}$, Passband Gain $A_{v0} = -\frac{R_2}{R_1} = -1.0 \text{ (0 dB)}$
+
+![Active First-Order Low-Pass Filter](assets/rc_active_low_pass_filter.png)
+
+---
+
+### 2. Variable Regulated DC Power Supply (1.75 V – 13 V)
+* **Native Multisim Schematic**: [`experiments/variable_power_supply_bridge_rectifier.ms14`](experiments/variable_power_supply_bridge_rectifier.ms14)
+* **Experiment Report**: [`experiments/BRIDGE_RECTIFIER_EXPERIMENT_REPORT.md`](experiments/BRIDGE_RECTIFIER_EXPERIMENT_REPORT.md)
+* **Key Components**: 10:1 Step-Down Transformer (`T1`), `3N246` Full-Wave Diode Bridge (`D1`), $2.2\,\text{mF}$ ($2200\,\mu\text{F}$) Smoothing Capacitor (`C1`), `LM317K` Adjustable Positive Voltage Regulator (`U1`), $10\,\text{k}\Omega$ Variable Potentiometer (`R1`, Key=A), $33\,\Omega$ Load Resistor (`R4`)
+* **Output Regulation Range**: $V_{out} = 1.25\,\text{V} \times \left(1 + \frac{R_{adj}}{R_3}\right) \approx \mathbf{1.75\,\text{V} \text{ to } 13.0\,\text{V}}$
+
+![Variable Regulated DC Power Supply](assets/variable_power_supply_bridge_rectifier.png)
+
+---
+
+### 3. RC Phase Shift Audio Oscillator
+* **Native Multisim Schematic**: [`experiments/rc_phase_shift_oscillator.ms14`](experiments/rc_phase_shift_oscillator.ms14)
+* **Experiment Report**: [`experiments/RC_PHASE_SHIFT_OSCILLATOR_EXPERIMENT_REPORT.md`](experiments/RC_PHASE_SHIFT_OSCILLATOR_EXPERIMENT_REPORT.md)
+* **Key Components**: `LM741` Op-Amp (`U1`), $\pm 15\,\text{V}$ Rails, 3-Stage $RC$ Ladder ($C_1 = C_2 = C_3 = 0.01\,\mu\text{F}$, $R_1 = R_2 = R_3 = 1.5\,\text{k}\Omega$), Inverting Input Resistor $R_4 = 15\,\text{k}\Omega$, Feedback Potentiometer $R_5 = 1\,\text{M}\Omega$
+* **Barkhausen Oscillation Frequency**: $f_0 = \frac{1}{2\pi R C \sqrt{6}} \approx \mathbf{4331.8\,\text{Hz} \text{ (~4.33 kHz)}}$, Loop Gain condition $|A_v| \ge 29$ ($R_5 \ge 435\,\text{k}\Omega$)
+
+![RC Phase Shift Audio Oscillator](assets/rc_phase_shift_oscillator.png)
+
+---
+
+### 4. Inverting Operational Amplifier (LM741)
+* **Native Multisim Schematic**: [`experiments/opamp_inverting_amplifier.ms14`](experiments/opamp_inverting_amplifier.ms14)
+* **Experiment Report**: [`experiments/OPAMP_INVERTING_AMPLIFIER_EXPERIMENT_REPORT.md`](experiments/OPAMP_INVERTING_AMPLIFIER_EXPERIMENT_REPORT.md)
+* **Key Components**: `LM741` Op-Amp (`U1`), Dual Rails $\pm 12.0\,\text{V}$, Input Resistor $R_1 = 10.0\,\text{k}\Omega$, Feedback Resistor $R_2 = 100.0\,\text{k}\Omega$, Input AC Source $V_1 = 2.0\,\text{V}_{pk}$ ($1.0\,\text{kHz}$)
+* **Theoretical Gain**: $A_v = -\frac{R_2}{R_1} = \mathbf{-10.0 \quad (+20\,\text{dB})}$, $180^\circ$ Phase Reversal, Virtual Ground ($V_- \approx 0\,\text{V}$)
+
+![Inverting Operational Amplifier](assets/opamp_inverting_amplifier.png)
+
+---
+
+### 📊 Summary Table of Experiments
 
 | Experiment | Native Multisim File | Illustrated Lab Report | Key Verification |
 | :--- | :--- | :--- | :--- |
@@ -215,7 +261,7 @@ A comprehensive, illustrated laboratory portfolio is documented in [**`ANALOG_LA
 | **Inverting Operational Amplifier** | [`experiments/opamp_inverting_amplifier.ms14`](experiments/opamp_inverting_amplifier.ms14) | [`OPAMP_INVERTING_AMPLIFIER_EXPERIMENT_REPORT.md`](experiments/OPAMP_INVERTING_AMPLIFIER_EXPERIMENT_REPORT.md) | $A_v = -10$, $180^\circ$ phase inversion |
 | **BJT Common Emitter Amplifier** | [`experiments/bjt_ce_amplifier.ms14`](experiments/bjt_ce_amplifier.ms14) | [`BJT_CE_AMPLIFIER_EXPERIMENT_REPORT.md`](experiments/BJT_CE_AMPLIFIER_EXPERIMENT_REPORT.md) | 2N2222, $A_v \approx -18.2$, DC bias validation |
 
-*(Note: In compliance with project guidelines, only native `.ms14` schematics and markdown `.md` manuals are retained).*
+*(Strictly adhering to project standards: Only native `.ms14` schematics and markdown `.md` reports are retained. No `.cir` files).*
 
 ---
 
