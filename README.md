@@ -1,96 +1,143 @@
-# NI Multisim 14.1 Automation via MCP
+# NI Multisim 14.1 Automation with MCP
 
-Comprehensive guide for integrating and automating **National Instruments Multisim 14.1** using the Model Context Protocol (**multisim-mcp**) and the Antigravity AI agent.
+This project connects **NI Multisim 14.1** with an MCP server so an AI agent can work with Multisim directly.
 
----
+The setup uses **multisim-mcp** and **Antigravity** to open circuits, edit components, run simulations, read measurements, perform parameter sweeps, and generate reports.
 
-## 📋 Table of Contents
-1. [Overview](#-overview)
-2. [Prerequisites & System Architecture](#-prerequisites--system-architecture)
-3. [Step-by-Step Installation & Setup Commands](#-step-by-step-installation--setup-commands)
-4. [Diagnostics & COM Verification](#-diagnostics--com-verification)
-5. [Antigravity Client Configuration](#-antigravity-client-configuration)
-6. [How It Works](#-how-it-works)
-7. [Prompting & Usage Guide](#-prompting--usage-guide)
-8. [Verified Test Project: 1 Hz Blinking LED](#-verified-test-project-1-hz-blinking-led)
-9. [Available MCP Tools Overview](#-available-mcp-tools-overview)
-10. [Analog Laboratory Experiments & Schematics](#-analog-laboratory-experiments--schematics)
-11. [Pushing to GitHub](#-pushing-to-github)
+The main goal is to make working with Multisim easier by allowing many circuit tasks to be done using normal language instead of doing everything manually inside Multisim.
 
----
+## What This Project Can Do
 
-## 🔭 Overview
+With the MCP setup you can:
 
-`multisim-mcp` is an open-source MCP (Model Context Protocol) server that exposes NI Multisim 14.1 COM Automation APIs directly to AI agents. It enables:
-- Programmatic circuit design, modification, and schematic inspection.
-- Execution of DC Operating Point, AC Frequency Sweep, and Transient simulations.
-- Direct measurement extraction (voltages, branch currents, multimeter probes, Bode plots).
-- Batch parametric sweeps and automated technical reporting.
+* Open and inspect Multisim circuits
+* Create and modify circuits
+* Change component values
+* Read circuit and net information
+* Run DC operating point simulations
+* Run AC frequency sweeps
+* Run transient simulations
+* Read voltage and current measurements
+* Use virtual instruments
+* Run parameter sweeps
+* Export simulation data
+* Generate experiment reports
 
-![NI Multisim Active Filter Schematic](assets/rc_active_low_pass_filter_schematic.png)
+The Multisim COM interface is used underneath the MCP server to communicate with Multisim.
 
----
+## System Setup
 
-## ⚙ Prerequisites & System Architecture
+The setup was tested on the following configuration:
 
-| Component | Specification | Notes |
-| :--- | :--- | :--- |
-| **Operating System** | Windows 11 (64-bit) | Multisim COM is Windows-native |
-| **Multisim Version** | NI Multisim 14.1 (32-bit) | Located in `Program Files (x86)\National Instruments` |
-| **Python Worker** | Python 3.14 (32-bit) | **Required**: COM libraries requires a 32-bit Python runtime |
-| **MCP Wrapper** | `multisim-mcp==1.1.0` | Provides the stdio MCP server & diagnostic CLI |
-| **Client** | Antigravity AI IDE | Automatically manages MCP stdio lifecycle |
+| Component        | Version / Setup    |
+| ---------------- | ------------------ |
+| Operating System | Windows 11 64-bit  |
+| NI Multisim      | 14.1 32-bit        |
+| Python           | 3.14 32-bit        |
+| MCP Server       | multisim-mcp 1.1.0 |
+| AI Client        | Antigravity        |
 
----
+The important part here is the **32-bit setup**. Multisim 14.1 uses 32-bit COM components, so the Python environment used to communicate with Multisim also needs to be 32-bit.
 
-## 🛠 Step-by-Step Installation & Setup Commands
+## Installation
 
-All setup steps were executed from the Windows terminal (PowerShell):
+### 1. Check the Python Installations
 
-### 1. Locate 32-bit Python Installation
-NI Multisim's COM Automation interface requires a 32-bit architecture to interface with its 32-bit DLLs and COM objects:
+First check which Python versions are installed:
+
 ```powershell
-# List available Python installations
 py --list
+```
 
-# Verify the 32-bit Python path and bitness
+Then check that the Python version you want to use is actually 32-bit:
+
+```powershell
 py -3.14-32 -c "import sys; print(sys.executable); print('Is 64-bit:', sys.maxsize > 2**32)"
 ```
-* **Detected Path**: `C:\Program Files (x86)\Python314-32\python.exe`
 
----
+The Python installation used in this setup was:
 
-### 2. Install Dependencies
-Install `multisim-mcp` version 1.1.0 into the 32-bit Python environment:
+```text
+C:\Program Files (x86)\Python314-32\python.exe
+```
+
+The important thing is that the output confirms that Python is running as 32-bit.
+
+## 2. Install multisim-mcp
+
+Install version 1.1.0 using the 32-bit Python installation:
+
 ```powershell
 & "C:\Program Files (x86)\Python314-32\python.exe" -m pip install "multisim-mcp==1.1.0"
 ```
-> **Note on Permissions**: Since `C:\Program Files (x86)` requires administrative elevation, pip automatically placed user scripts and binaries into:
-> `C:\Users\<User>\AppData\Roaming\Python\Python314-32\Scripts`
 
----
+Because Python is installed under `Program Files (x86)`, Windows may not allow normal writing to that directory.
 
-### 3. Run Diagnostic Handshake
-Execute the diagnostic tool to test COM registration and live Multisim activation:
+In that case, pip can place the user-level scripts under:
+
+```text
+C:\Users\<User>\AppData\Roaming\Python\Python314-32\Scripts
+```
+
+This is where the `multisim-mcp.exe` executable can be found.
+
+## 3. Check the Multisim Connection
+
+Before configuring Antigravity, it is a good idea to check whether the MCP setup can actually communicate with Multisim.
+
+Run:
+
 ```powershell
 & "$env:APPDATA\Python\Python314-32\Scripts\multisim-mcp.exe" --json doctor --connect
 ```
 
-**Diagnostic Results:**
-- **Python Architecture**: 32-bit (Passed)
-- **COM Registration**: Found `MultisimInterface.MultisimApp` (`{D9CBB7A1-6AD6-438B-AD1B-42FB2DB00CAE}`)
-- **Live Connection**: Connected to `C:\Program Files (x86)\National Instruments\Circuit Design Suite 14.1\Multisim.exe`
-- **Simulation Engine**: Ready (`automation_ready: true`)
+The diagnostic checks the Python architecture, Multisim COM registration, the Multisim application, and the simulation engine.
 
----
+The verified setup showed:
 
-### 4. Generate Client Configuration
-Generate the generic MCP JSON fragment targeting the 32-bit Python executable:
+```text
+Python Architecture: 32-bit
+COM Registration: Found
+Live Connection: Connected
+Simulation Engine: Ready
+```
+
+The Multisim COM object detected in the setup was:
+
+```text
+MultisimInterface.MultisimApp
+```
+
+with CLSID:
+
+```text
+{D9CBB7A1-6AD6-438B-AD1B-42FB2DB00CAE}
+```
+
+The Multisim installation was detected at:
+
+```text
+C:\Program Files (x86)\National Instruments\Circuit Design Suite 14.1\Multisim.exe
+```
+
+The diagnostic also reported:
+
+```text
+automation_ready: true
+```
+
+So the COM connection and simulation engine were working correctly.
+
+## 4. Generate the MCP Configuration
+
+You can generate the configuration using:
+
 ```powershell
 & "$env:APPDATA\Python\Python314-32\Scripts\multisim-mcp.exe" config --client generic --python "C:\Program Files (x86)\Python314-32\python.exe"
 ```
 
-Generated block:
+The generated configuration looks like this:
+
 ```json
 {
   "command": "C:\\Program Files (x86)\\Python314-32\\python.exe",
@@ -101,12 +148,25 @@ Generated block:
 }
 ```
 
----
+This tells the MCP client to start the Multisim MCP server using the 32-bit Python installation.
 
-### 5. Inject MCP Configuration
-Add the configuration block under `"multisim"` in Antigravity's MCP configuration:
-- Global path: `~/.gemini/config/mcp_config.json`
-- User path: `~/.gemini/antigravity/mcp_config.json`
+## 5. Add It to Antigravity
+
+The MCP configuration can be added to the Antigravity configuration file.
+
+Possible configuration locations are:
+
+```text
+~/.gemini/config/mcp_config.json
+```
+
+or:
+
+```text
+~/.gemini/antigravity/mcp_config.json
+```
+
+Add the Multisim server under `mcpServers`:
 
 ```json
 {
@@ -122,44 +182,122 @@ Add the configuration block under `"multisim"` in Antigravity's MCP configuratio
 }
 ```
 
----
+After this is configured, Antigravity can start the MCP server when it needs to use the Multisim tools.
 
-## 🚀 How It Works
+# How the Setup Works
 
-1. **Zero Manual Server Startup**: You do **not** need to keep a terminal open or run `multisim-mcp serve`.
-2. **On-Demand Lifecycle**: Antigravity automatically launches the server process in the background whenever you ask questions or issue tasks related to Multisim circuits.
-3. **Global Availability**: Because the configuration is in `~/.gemini/config/mcp_config.json`, the tools are accessible across all workspaces.
+You do not have to manually start the MCP server every time.
 
----
+Once the server is configured in Antigravity:
 
-## 💬 Prompting & Usage Guide
+1. Antigravity starts the MCP server when it needs it
+2. The MCP server connects to Multisim
+3. The AI agent can call the available Multisim tools
+4. Multisim performs the requested operation
+5. Results are returned to the AI agent
 
-Once configured, you can interact with Multisim using natural language prompts:
+There is no need to keep a separate terminal window running `multisim-mcp serve`.
 
-### Circuit Inspection & Editing
-- *"Connect to Multisim and open the circuit file at `C:\Circuits\AudioAmp.ms14`."*
-- *"List all components, nets, and input/output pins in the active schematic."*
-- *"Change resistor R1 to 10k ohms and capacitor C1 to 100nF."*
+The configuration can also be available across different Antigravity workspaces when it is placed in the global configuration.
 
-### Simulation & Analysis
-- *"Run a DC operating point analysis and show the nodal voltages."*
-- *"Run an AC frequency sweep from 10 Hz to 100 kHz on net `Vout` and report the -3dB cutoff frequency."*
-- *"Run a 10ms transient simulation with a 1µs time step and report peak voltages."*
-- *"Read the virtual multimeter value on net 3."*
+# Using Multisim with Natural Language
 
-### Batch Sweeps & Reports
-- *"Run a parameter sweep for resistor R1 across [1k, 4.7k, 10k] and evaluate rise time."*
-- *"Export the formal experiment report with waveform CSV data."*
+Once everything is configured, you can talk to the AI agent normally.
 
----
+## Open and Inspect a Circuit
 
-## 💡 Verified Test Project: 1 Hz Blinking LED
+For example:
 
-To test the integration end-to-end, we performed a live transient simulation of an LED flasher circuit through Multisim's SPICE engine.
+```text
+Connect to Multisim and open the circuit file at C:\Circuits\AudioAmp.ms14
+```
 
-### Circuit SPICE Netlist
+You can also ask:
+
+```text
+List all components, nets, and input/output pins in the active schematic.
+```
+
+To change component values:
+
+```text
+Change resistor R1 to 10k ohms and capacitor C1 to 100nF.
+```
+
+These commands can be translated into the corresponding Multisim operations through MCP.
+
+## Run Simulations
+
+You can ask for a DC operating point:
+
+```text
+Run a DC operating point analysis and show the nodal voltages.
+```
+
+For AC analysis:
+
+```text
+Run an AC frequency sweep from 10 Hz to 100 kHz on net Vout and report the -3dB cutoff frequency.
+```
+
+For transient analysis:
+
+```text
+Run a 10ms transient simulation with a 1us time step and report peak voltages.
+```
+
+You can also read virtual instrument measurements:
+
+```text
+Read the virtual multimeter value on net 3.
+```
+
+The MCP server provides tools for these simulation operations.
+
+# Parameter Sweeps
+
+The setup can also be used for testing different component values automatically.
+
+For example:
+
+```text
+Run a parameter sweep for resistor R1 across [1k, 4.7k, 10k] and evaluate rise time.
+```
+
+You can also ask it to create a report:
+
+```text
+Export the formal experiment report with waveform CSV data.
+```
+
+This is useful when you want to compare several circuit configurations without changing each value manually.
+
+# Verified Test Circuit
+
+To test the complete setup, a simple **1 Hz blinking LED circuit** was simulated through Multisim.
+
+The test was useful because it checked the whole process:
+
+```text
+AI Request
+    ↓
+MCP
+    ↓
+Multisim
+    ↓
+SPICE Simulation
+    ↓
+Measurements
+    ↓
+Results
+```
+
+## Circuit Netlist
+
+The test circuit used the following SPICE netlist:
+
 ```spice
-* LED Blinking Circuit (1 Hz Pulse)
+* LED Blinking Circuit (1 Hz)
 V1 1 0 PULSE(0 5 0 1m 1m 0.5 1.0)
 R1 1 2 330
 D1 2 0 DLED
@@ -167,132 +305,436 @@ D1 2 0 DLED
 .end
 ```
 
-### Multisim Command
+The pulse source switches between 0 V and 5 V.
+
+The resistor limits the LED current.
+
+## Simulation Command
+
+The transient simulation was run with:
+
 ```spice
 tran 10m 2.0
 ```
 
-### Verified Simulation Output
-- **Pulse Generator `V(1)`**: Successfully pulsed between `0.0 V` and `5.0 V` (500 ms ON, 500 ms OFF).
-- **LED Anode `V(2)`**: Reached **2.18 V** forward voltage drop when active.
-- **Current through LED**: Peak current measured at **8.55 mA**, within safe continuous ratings for standard indicator LEDs.
-- **Waveform Data**: Automatically logged to local CSV for further plotting and analysis.
+The simulation produced the expected LED waveform.
 
----
+The measured results were:
 
-## 🧰 Available MCP Tools Overview
+* Pulse voltage: 0 V to 5 V
+* ON time: 500 ms
+* OFF time: 500 ms
+* LED anode voltage: about 2.18 V
+* Peak LED current: about 8.55 mA
+* Waveform data: saved to CSV
 
-The `multisim-mcp` integration registers **55 tools** categorized into:
+The complete test confirmed that Multisim was able to run the circuit and return simulation data through the automation setup.
 
-1. **Connection & State**: `connect`, `disconnect`, `runtime_status`, `circuit_info`
-2. **Circuit Management**: `new_circuit`, `open_circuit`, `save_circuit`, `get_circuit_image`
-3. **Netlist & Components**: `report_netlist`, `report_bom`, `enum_components`, `get_rlc_value`, `set_rlc_value`
-4. **Simulation Engines**:
-   - `run_dc_operating_point`
-   - `run_ac_sweep`, `run_ac_single_frequency`
-   - `run_transient`, `stop_simulation`
-   - `run_spice_netlist`
-5. **Virtual Instruments & Diagnostics**:
-   - `read_virtual_multimeter`
-   - `analyze_bode_response`
-   - `analyze_logic_signals`
-6. **Automation & Reporting**:
-   - `run_circuit_experiment`, `run_verified_circuit_experiment`
-   - `plan_experiment_sweep`, `run_experiment_sweep`
-   - `generate_report`, `export_formal_experiment_report`
+# MCP Tools
 
----
+The `multisim-mcp` setup provides around **55 tools** for working with Multisim.
 
-## 🔬 Analog Laboratory Experiments & Schematics
+The tools are grouped by purpose.
 
-A comprehensive, illustrated laboratory portfolio is documented in [**`ANALOG_LAB_EXPERIMENTS_MANUAL.md`**](ANALOG_LAB_EXPERIMENTS_MANUAL.md). All 4 circuits have been designed, simulated, and verified in **NI Multisim 14.1** using `multisim-mcp`.
+## Connection
 
-Every experiment strictly adheres to repository standards, providing both the native **`.ms14`** Multisim schematic file and its complete markdown **`.md`** experiment report.
+```text
+connect
+disconnect
+runtime_status
+circuit_info
+```
 
----
+These tools are used to connect to Multisim and check its current state.
 
-### 1. Active First-Order Low-Pass Filter
-* **Native Multisim Schematic**: [`experiments/RC_Low_Pass_Filter.ms14`](experiments/RC_Low_Pass_Filter.ms14)
-* **Experiment Report**: [`experiments/RC_FILTER_EXPERIMENT_REPORT.md`](experiments/RC_FILTER_EXPERIMENT_REPORT.md)
-* **Key Parameters**: $R_1 = 1\,\text{k}\Omega$, $R_2 = 1\,\text{k}\Omega$, $C_1 = 100\,\text{nF}$, Op-Amp: `OPAMP_5T_VIRTUAL`, $\pm 12\,\text{V}$ DC rails
-* **Theoretical Cutoff**: $f_c = \frac{1}{2\pi R_2 C_1} \approx \mathbf{1591.55\,\text{Hz} \text{ (~1.59 kHz)}}$, Passband Gain $A_{v0} = -\frac{R_2}{R_1} = -1.0 \text{ (0 dB)}$
+## Circuit Management
 
-![Active First-Order Low-Pass Filter](assets/rc_active_low_pass_filter.png)
+```text
+new_circuit
+open_circuit
+save_circuit
+get_circuit_image
+```
 
----
+These are used to create, open, save, and inspect circuits.
 
-### 2. Variable Regulated DC Power Supply (1.75 V – 13 V)
-* **Native Multisim Schematic**: [`experiments/variable_power_supply_bridge_rectifier.ms14`](experiments/variable_power_supply_bridge_rectifier.ms14)
-* **Experiment Report**: [`experiments/BRIDGE_RECTIFIER_EXPERIMENT_REPORT.md`](experiments/BRIDGE_RECTIFIER_EXPERIMENT_REPORT.md)
-* **Key Components**: 10:1 Step-Down Transformer (`T1`), `3N246` Full-Wave Diode Bridge (`D1`), $2.2\,\text{mF}$ ($2200\,\mu\text{F}$) Smoothing Capacitor (`C1`), `LM317K` Adjustable Positive Voltage Regulator (`U1`), $10\,\text{k}\Omega$ Variable Potentiometer (`R1`, Key=A), $33\,\Omega$ Load Resistor (`R4`)
-* **Output Regulation Range**: $V_{out} = 1.25\,\text{V} \times \left(1 + \frac{R_{adj}}{R_3}\right) \approx \mathbf{1.75\,\text{V} \text{ to } 13.0\,\text{V}}$
+## Components and Netlists
 
-![Variable Regulated DC Power Supply](assets/variable_power_supply_bridge_rectifier.png)
+```text
+report_netlist
+report_bom
+enum_components
+get_rlc_value
+set_rlc_value
+```
 
----
+These tools make it possible to inspect components and change values programmatically.
 
-### 3. RC Phase Shift Audio Oscillator
-* **Native Multisim Schematic**: [`experiments/rc_phase_shift_oscillator.ms14`](experiments/rc_phase_shift_oscillator.ms14)
-* **Experiment Report**: [`experiments/RC_PHASE_SHIFT_OSCILLATOR_EXPERIMENT_REPORT.md`](experiments/RC_PHASE_SHIFT_OSCILLATOR_EXPERIMENT_REPORT.md)
-* **Key Components**: `LM741` Op-Amp (`U1`), $\pm 15\,\text{V}$ Rails, 3-Stage $RC$ Ladder ($C_1 = C_2 = C_3 = 0.01\,\mu\text{F}$, $R_1 = R_2 = R_3 = 1.5\,\text{k}\Omega$), Inverting Input Resistor $R_4 = 15\,\text{k}\Omega$, Feedback Potentiometer $R_5 = 1\,\text{M}\Omega$
-* **Barkhausen Oscillation Frequency**: $f_0 = \frac{1}{2\pi R C \sqrt{6}} \approx \mathbf{4331.8\,\text{Hz} \text{ (~4.33 kHz)}}$, Loop Gain condition $|A_v| \ge 29$ ($R_5 \ge 435\,\text{k}\Omega$)
+## Simulation
 
-![RC Phase Shift Audio Oscillator](assets/rc_phase_shift_oscillator.png)
+```text
+run_dc_operating_point
+run_ac_sweep
+run_ac_single_frequency
+run_transient
+stop_simulation
+run_spice_netlist
+```
 
----
+These cover the main simulation types used in the project.
 
-### 4. Inverting Operational Amplifier (LM741)
-* **Native Multisim Schematic**: [`experiments/opamp_inverting_amplifier.ms14`](experiments/opamp_inverting_amplifier.ms14)
-* **Experiment Report**: [`experiments/OPAMP_INVERTING_AMPLIFIER_EXPERIMENT_REPORT.md`](experiments/OPAMP_INVERTING_AMPLIFIER_EXPERIMENT_REPORT.md)
-* **Key Components**: `LM741` Op-Amp (`U1`), Dual Rails $\pm 12.0\,\text{V}$, Input Resistor $R_1 = 10.0\,\text{k}\Omega$, Feedback Resistor $R_2 = 100.0\,\text{k}\Omega$, Input AC Source $V_1 = 2.0\,\text{V}_{pk}$ ($1.0\,\text{kHz}$)
-* **Theoretical Gain**: $A_v = -\frac{R_2}{R_1} = \mathbf{-10.0 \quad (+20\,\text{dB})}$, $180^\circ$ Phase Reversal, Virtual Ground ($V_- \approx 0\,\text{V}$)
+## Virtual Instruments
 
-![Inverting Operational Amplifier](assets/opamp_inverting_amplifier.png)
+```text
+read_virtual_multimeter
+analyze_bode_response
+analyze_logic_signals
+```
 
----
+These tools are useful for reading measurements and analyzing simulation results.
 
-### 📊 Summary Table of Experiments
+## Experiments and Reports
 
-| Experiment | Native Multisim File | Illustrated Lab Report | Key Verification |
-| :--- | :--- | :--- | :--- |
-| **Active Low-Pass Filter** | [`experiments/RC_Low_Pass_Filter.ms14`](experiments/RC_Low_Pass_Filter.ms14) | [`RC_FILTER_EXPERIMENT_REPORT.md`](experiments/RC_FILTER_EXPERIMENT_REPORT.md) | $f_c \approx 1.59\,\text{kHz}$, $0\,\text{dB}$ passband |
-| **Variable Regulated DC Power Supply** | [`experiments/variable_power_supply_bridge_rectifier.ms14`](experiments/variable_power_supply_bridge_rectifier.ms14) | [`BRIDGE_RECTIFIER_EXPERIMENT_REPORT.md`](experiments/BRIDGE_RECTIFIER_EXPERIMENT_REPORT.md) | Full bridge rectifier, $2.2\,\text{mF}$, LM317 regulator |
-| **RC Phase Shift Audio Oscillator** | [`experiments/rc_phase_shift_oscillator.ms14`](experiments/rc_phase_shift_oscillator.ms14) | [`RC_PHASE_SHIFT_OSCILLATOR_EXPERIMENT_REPORT.md`](experiments/RC_PHASE_SHIFT_OSCILLATOR_EXPERIMENT_REPORT.md) | Barkhausen criterion, $f_0 \approx 4.33\,\text{kHz}$ |
-| **Inverting Operational Amplifier** | [`experiments/opamp_inverting_amplifier.ms14`](experiments/opamp_inverting_amplifier.ms14) | [`OPAMP_INVERTING_AMPLIFIER_EXPERIMENT_REPORT.md`](experiments/OPAMP_INVERTING_AMPLIFIER_EXPERIMENT_REPORT.md) | $A_v = -10$, $180^\circ$ phase inversion |
-| **BJT Common Emitter Amplifier** | [`experiments/bjt_ce_amplifier.ms14`](experiments/bjt_ce_amplifier.ms14) | [`BJT_CE_AMPLIFIER_EXPERIMENT_REPORT.md`](experiments/BJT_CE_AMPLIFIER_EXPERIMENT_REPORT.md) | 2N2222, $A_v \approx -18.2$, DC bias validation |
+```text
+run_circuit_experiment
+run_verified_circuit_experiment
+plan_experiment_sweep
+run_experiment_sweep
+generate_report
+export_formal_experiment_report
+```
 
-*(Strictly adhering to project standards: Only native `.ms14` schematics and markdown `.md` reports are retained. No `.cir` files).*
+These tools are useful when running complete experiments and generating results automatically.
 
----
+# Analog Laboratory Experiments
 
-## 📦 Pushing to GitHub
+The project also contains a set of analog electronics experiments.
 
-To push this project and documentation to GitHub:
+Each experiment has:
 
-### 1. Initialize Git & Add Files
+* A native `.ms14` Multisim schematic
+* A Markdown experiment report
+* Simulation results
+* Component values
+* Theoretical calculations
+* Verification results
+
+The project currently documents the following experiments.
+
+## 1. Active First-Order Low-Pass Filter
+
+Files:
+
+```text
+experiments/RC_Low_Pass_Filter.ms14
+experiments/RC_FILTER_EXPERIMENT_REPORT.md
+```
+
+Main components:
+
+```text
+R1 = 1 kΩ
+R2 = 1 kΩ
+C1 = 100 nF
+Op-Amp = OPAMP_5T_VIRTUAL
+Supply = ±12 V
+```
+
+The theoretical cutoff frequency is:
+
+```text
+fc = 1 / (2πRC)
+```
+
+For the given values:
+
+```text
+fc ≈ 1591.55 Hz
+```
+
+So the expected cutoff frequency is approximately:
+
+```text
+1.59 kHz
+```
+
+The passband gain is:
+
+```text
+Av0 = -R2 / R1
+```
+
+which gives:
+
+```text
+Av0 = -1
+```
+
+or approximately:
+
+```text
+0 dB
+```
+
+The Multisim circuit and report are included in the project.
+
+## 2. Variable Regulated DC Power Supply
+
+Files:
+
+```text
+experiments/variable_power_supply_bridge_rectifier.ms14
+experiments/BRIDGE_RECTIFIER_EXPERIMENT_REPORT.md
+```
+
+Main components include:
+
+```text
+10:1 Step-Down Transformer
+3N246 Full-Wave Diode Bridge
+2200 µF Smoothing Capacitor
+LM317K Voltage Regulator
+10 kΩ Variable Potentiometer
+33 Ω Load Resistor
+```
+
+The expected output range is approximately:
+
+```text
+1.75 V to 13 V
+```
+
+The circuit includes the transformer, bridge rectifier, filter capacitor, adjustable regulator, and load.
+
+## 3. RC Phase Shift Audio Oscillator
+
+Files:
+
+```text
+experiments/rc_phase_shift_oscillator.ms14
+experiments/RC_PHASE_SHIFT_OSCILLATOR_EXPERIMENT_REPORT.md
+```
+
+The circuit uses:
+
+```text
+LM741 Op-Amp
+±15 V supply
+3-stage RC network
+C1 = C2 = C3 = 0.01 µF
+R1 = R2 = R3 = 1.5 kΩ
+R4 = 15 kΩ
+R5 = 1 MΩ potentiometer
+```
+
+The theoretical oscillation frequency is:
+
+```text
+f0 = 1 / (2πRC√6)
+```
+
+For the given component values:
+
+```text
+f0 ≈ 4331.8 Hz
+```
+
+or approximately:
+
+```text
+4.33 kHz
+```
+
+The required loop gain is approximately:
+
+```text
+|Av| ≥ 29
+```
+
+The project documentation gives a feedback resistance requirement of approximately:
+
+```text
+R5 ≥ 435 kΩ
+```
+
+for the stated condition.
+
+## 4. Inverting Op-Amp
+
+Files:
+
+```text
+experiments/opamp_inverting_amplifier.ms14
+experiments/OPAMP_INVERTING_AMPLIFIER_EXPERIMENT_REPORT.md
+```
+
+Main components:
+
+```text
+LM741
+±12 V supply
+R1 = 10 kΩ
+R2 = 100 kΩ
+Input = 2 Vpk at 1 kHz
+```
+
+The theoretical gain is:
+
+```text
+Av = -R2 / R1
+```
+
+Therefore:
+
+```text
+Av = -10
+```
+
+This corresponds to approximately:
+
+```text
++20 dB
+```
+
+The output also has a 180° phase reversal because the amplifier is configured as an inverting amplifier.
+
+The negative sign in the gain represents this phase inversion.
+
+## 5. BJT Common-Emitter Amplifier
+
+The project also includes a BJT common-emitter amplifier experiment.
+
+File:
+
+```text
+experiments/bjt_ce_amplifier.ms14
+```
+
+Report:
+
+```text
+experiments/BJT_CE_AMPLIFIER_EXPERIMENT_REPORT.md
+```
+
+The documented circuit uses a:
+
+```text
+2N2222 transistor
+```
+
+The reported voltage gain is approximately:
+
+```text
+Av ≈ -18.2
+```
+
+The experiment also includes DC bias validation.
+
+# Experiment Summary
+
+| Experiment                | Multisim File                                 | Report                                           | Main Result          |
+| ------------------------- | --------------------------------------------- | ------------------------------------------------ | -------------------- |
+| Active Low-Pass Filter    | `RC_Low_Pass_Filter.ms14`                     | `RC_FILTER_EXPERIMENT_REPORT.md`                 | Cutoff ≈ 1.59 kHz    |
+| Variable DC Power Supply  | `variable_power_supply_bridge_rectifier.ms14` | `BRIDGE_RECTIFIER_EXPERIMENT_REPORT.md`          | 1.75 V to 13 V       |
+| RC Phase Shift Oscillator | `rc_phase_shift_oscillator.ms14`              | `RC_PHASE_SHIFT_OSCILLATOR_EXPERIMENT_REPORT.md` | Frequency ≈ 4.33 kHz |
+| Inverting Op-Amp          | `opamp_inverting_amplifier.ms14`              | `OPAMP_INVERTING_AMPLIFIER_EXPERIMENT_REPORT.md` | Gain = -10           |
+| BJT CE Amplifier          | `bjt_ce_amplifier.ms14`                       | `BJT_CE_AMPLIFIER_EXPERIMENT_REPORT.md`          | Gain ≈ -18.2         |
+
+The project keeps the native Multisim `.ms14` files and Markdown reports. It does not keep separate `.cir` files.
+
+# Project Structure
+
+```text
+ni-multisim-automation/
+│
+├── README.md
+│
+├── assets/
+│   ├── rc_active_low_pass_filter_schematic.png
+│   ├── rc_active_low_pass_filter.png
+│   ├── variable_power_supply_bridge_rectifier.png
+│   ├── rc_phase_shift_oscillator.png
+│   └── opamp_inverting_amplifier.png
+│
+├── experiments/
+│   ├── RC_Low_Pass_Filter.ms14
+│   ├── RC_FILTER_EXPERIMENT_REPORT.md
+│   │
+│   ├── variable_power_supply_bridge_rectifier.ms14
+│   ├── BRIDGE_RECTIFIER_EXPERIMENT_REPORT.md
+│   │
+│   ├── rc_phase_shift_oscillator.ms14
+│   ├── RC_PHASE_SHIFT_OSCILLATOR_EXPERIMENT_REPORT.md
+│   │
+│   ├── opamp_inverting_amplifier.ms14
+│   ├── OPAMP_INVERTING_AMPLIFIER_EXPERIMENT_REPORT.md
+│   │
+│   ├── bjt_ce_amplifier.ms14
+│   └── BJT_CE_AMPLIFIER_EXPERIMENT_REPORT.md
+│
+└── ANALOG_LAB_EXPERIMENTS_MANUAL.md
+```
+
+# GitHub Setup
+
+If you want to upload the project to GitHub, first open PowerShell in the project directory:
+
 ```powershell
-# Open the project folder in PowerShell
 cd "c:\ni multisim sutomation"
+```
 
-# Initialize Git repository
+Initialize Git:
+
+```powershell
 git init
+```
 
-# Add README and gitignore
+Add the README and gitignore:
+
+```powershell
 git add README.md .gitignore
+```
 
-# Make the initial commit
+Create the first commit:
+
+```powershell
 git commit -m "Initial commit: NI Multisim 14.1 MCP automation setup and documentation"
 ```
 
-### 2. Connect to Your GitHub Repository
-Create a new empty repository on [GitHub](https://github.com/new), then link and push:
+Then set the main branch:
+
 ```powershell
-# Set branch name to main
 git branch -M main
+```
 
-# Add remote origin (replace with your actual repository URL)
+Add your GitHub repository:
+
+```powershell
 git remote add origin https://github.com/<YOUR-USERNAME>/<YOUR-REPO-NAME>.git
+```
 
-# Push to GitHub
+Finally push the project:
+
+```powershell
 git push -u origin main
 ```
+
+Replace the username and repository name with your actual GitHub details.
+
+# Final Notes
+
+This project is mainly about connecting **NI Multisim 14.1 with an AI agent through MCP**.
+
+The useful part is that circuit work that normally requires a lot of manual interaction can be controlled through commands such as:
+
+```text
+Open this circuit
+Change R1 to 10k
+Run an AC sweep
+Measure Vout
+Find the cutoff frequency
+Run the experiment
+Generate the report
+```
+
+The current setup has already been tested with Multisim's COM interface and a working transient LED simulation. It also includes several analog laboratory circuits that can be opened and simulated directly in Multisim.
